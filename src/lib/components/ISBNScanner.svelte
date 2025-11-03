@@ -3,6 +3,7 @@
 	import { tick } from 'svelte';
 	import { fetchOpenLibraryBookQuery } from '../../routes/data.remote';
 	import type { OpenLibraryBook } from '$lib/types/openlibrary';
+	import BookCard from './BookCard.svelte';
 
   let isScanning = $state(false);
   let isLoading = $state(false);
@@ -13,12 +14,9 @@
   let book: OpenLibraryBook | null = $state(null);
 
   const startScanner = async () => {
+    
     try {
-      error = '';
-      isScanning = true;
-
-      await tick();
-      
+      error = '';  
       Quagga.init({
         inputStream: {
           name: "Live",
@@ -60,9 +58,6 @@
   };
 
   const stopScanner = () => {
-    isScanning = false;
-    //success = '';
-    
     try {
       Quagga.offDetected(onBarcodeDetected);
       Quagga.stop();
@@ -72,19 +67,59 @@
     }
   };
 
-  const onBarcodeDetected = async (result: {codeResult: {code: string | null}}) => {
+  const onBarcodeDetected = async (result: any) => {
     try {
-      const code = result.codeResult.code;
-      console.log('📷 Código detectado:', code);
+      const code = result.codeResult?.code;
+      if (!code) return;
+
+      // 🔍 Calculamos el promedio de error (según issue #237)
+      let totalError = 0;
+      let validSamples = 0;
+
+      result.codeResult.decodedCodes?.forEach((decoded: any) => {
+        if (decoded.error !== undefined) {
+          totalError += decoded.error;
+          validSamples++;
+        }
+      });
+
+      const avgError = validSamples > 0 ? totalError / validSamples : 1;
+
+      console.log(`📷 Código detectado: ${code}, error promedio: ${avgError.toFixed(3)}`);
+
+      // ⚠️ Si el error medio es alto, ignoramos la detección
+      if (avgError > 0.1) {
+        console.log('❌ Detección descartada por baja confianza');
+        return;
+      }
+
+      stopScanner();
+
+      // ✅ Detección válida
       scannedISBN = code;
-      if(code)
-        book = await fetchOpenLibraryBookQuery({isbn: code});
+
+      if (isLoading) return;
+
+      isLoading = true;
+      console.log("📘 Buscando libro en OpenLibrary...");
+      book = await fetchOpenLibraryBookQuery({ isbn: code });
+      
     } catch (err) {
       console.error('Error procesando código detectado:', err);
-    }finally{
-      stopScanner();
+      error = '❌ Error procesando código detectado.';
+    } finally {
+      isLoading = false;
+      // Si quieres detener el escáner tras una lectura válida, puedes hacerlo aquí:
+      // isScanning = false;
     }
   };
+
+  $effect(() => {
+    if(isScanning)
+      startScanner();
+    else
+      stopScanner();
+  });
 
   $effect(() => {
     return () => {
@@ -99,11 +134,11 @@
   <div class="scanner-section mb-6">
     <div class="flex gap-3 mb-4">
       {#if !isScanning}
-        <button class="btn" onclick={startScanner} disabled={isLoading}>
+        <button class="btn" onclick={() => isScanning = true} disabled={isLoading}>
           📱 Activar Cámara
         </button>
       {:else}
-        <button class="btn" onclick={stopScanner}>
+        <button class="btn" onclick={() => isScanning = false}>
           ⏹️ Detener Scanner
         </button>
       {/if}
@@ -120,7 +155,9 @@
   </div>
 
   <div class="text-2xl font-bold mb-6 text-center">{scannedISBN}</div>
-  <div>{JSON.stringify(book)}</div>
+  {#if book}
+  <BookCard {book} />
+  {/if}
 
   <div class="manual-section mb-6">
     <h3 class="text-lg font-semibold mb-3">✏️ Entrada Manual</h3>

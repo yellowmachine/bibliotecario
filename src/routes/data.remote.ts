@@ -1,4 +1,4 @@
-import { query, command } from '$app/server';
+import { query } from '$app/server';
 import { z } from 'zod';
 import type { OpenLibraryBook } from '$lib/types/openlibrary';
 
@@ -21,13 +21,14 @@ export const fetchOpenLibraryBookQuery = query(
 		try {
 
             console.log(isbn);
-			const cleanISBN = isbn.replace(/[^0-9X]/g, '');
 			
 			const controller = new AbortController();
 			const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
 			
+            console.log('fetching...');
+
 			const response = await fetch(
-				`https://openlibrary.org/api/books?bibkeys=ISBN:${cleanISBN}&jscmd=data&format=json`,
+				`https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&jscmd=data&format=json`,
 				{
 					headers: {
 						'User-Agent': 'LibrarianProject/1.0 (Educational Project)',
@@ -46,7 +47,7 @@ export const fetchOpenLibraryBookQuery = query(
 
             console.log(data);
 
-			const bookKey = `ISBN:${cleanISBN}`;
+			const bookKey = `ISBN:${isbn}`;
 			
 			if (!data[bookKey]) {
 				return null;
@@ -56,11 +57,11 @@ export const fetchOpenLibraryBookQuery = query(
 			
 			// Transformar a nuestro formato OpenLibraryBook
 			const transformedBook: OpenLibraryBook = {
-				key: book.key || `/books/${cleanISBN}`,
+				key: book.key || `/books/${isbn}`,
 				title: book.title || 'Título desconocido',
 				subtitle: book.subtitle,
-				isbn_13: cleanISBN.length === 13 ? [cleanISBN] : undefined,
-				isbn_10: cleanISBN.length === 10 ? [cleanISBN] : undefined,
+				isbn_13: isbn.length === 13 ? [isbn] : undefined,
+				isbn_10: isbn.length === 10 ? [isbn] : undefined,
 				authors: book.authors?.map((author: any) => ({
 					key: author.key || `/authors/${author.name}`,
 					name: author.name

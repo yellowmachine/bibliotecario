@@ -69,7 +69,7 @@ export interface OpenLibraryBook {
     
     // URLs y enlaces
     url?: string;
-    covers?: number[]; // IDs de las portadas
+    covers?: string[]; // IDs de las portadas
     
     // Información adicional
     contributions?: string[];
