@@ -1,6 +1,7 @@
 import { query } from '$app/server';
 import { z } from 'zod';
-import type { OpenLibraryBook, OpenLibraryISBNResponse } from '$lib/types/openlibrary';
+import type { OpenLibraryISBNResponse } from '$lib/types/openlibrary';
+import type { NewBook } from '$lib/db/books';
 
 // Tipos exportados
 export interface LibraryStats {
@@ -53,27 +54,22 @@ export const fetchOpenLibraryBookQuery = query(
 			const book = data[bookKey];
 			
 			// Transformar a nuestro formato OpenLibraryBook
-			const transformedBook: OpenLibraryBook = {
-				key: book.key || `/books/${isbn}`,
+			const transformedBook: NewBook = {
+				//key: book.key || `/books/${isbn}`,
 				title: book.title || 'Título desconocido',
-				subtitle: book.subtitle,
-				isbn_13: isbn.length === 13 ? [isbn] : undefined,
-				isbn_10: isbn.length === 10 ? [isbn] : undefined,
-				authors: book.authors?.map((author: any) => ({
-					key: author.key || `/authors/${author.name}`,
-					name: author.name
-				})),
-				publishers: book.publishers?.map((pub: any) => pub.name || pub),
-				publish_date: book.publish_date,
-				number_of_pages: book.number_of_pages,
-				subjects: book.subjects?.map((subject: any) => subject.name || subject),
-				languages: book.languages?.map((lang: any) => ({
-					key: lang.key || `/languages/${lang.name}`,
-					name: lang.name
-				})),
+				//subtitle: book.subtitle,
+				//isbn_13: isbn.length === 13 ? [isbn] : undefined,
+				//isbn_10: isbn.length === 10 ? [isbn] : undefined,
+				isbn,
+				authors: book.authors?.map((author: any) => author.name).join(", ") || null,
+				publisher: book.publishers?.map((pub: any) => pub.name || pub).join(", ") || null,
+				publishDate: book.publish_date || null,
+				numberOfPages: book.number_of_pages || null,
+				subjects: book.subjects?.map((subject: any) => subject.name || subject) || null,
+				languages: book.languages?.map((lang: any) => lang.name) || null,
 				//description: book.description,
-				cover: book.cover,
-				type: { key: "/type/edition" }
+				coverImageUrl: book.cover?.large || null,
+				//type: { key: "/type/edition" }
 			};
 
 			return transformedBook;

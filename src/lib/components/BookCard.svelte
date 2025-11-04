@@ -1,60 +1,55 @@
 <script lang="ts">
-    import { type OpenLibraryBook, OpenLibraryHelpers } from '$lib/types/openlibrary';
+    import type { NewBook } from '$lib/db/books';
 	
 	interface Props {
-		book: OpenLibraryBook;
+		book: NewBook
 	}
 
 	let {
 		book,
 	}: Props = $props();
-
-    const authors = $derived(OpenLibraryHelpers.getAuthorsString(book));
-    const publishYear = $derived(OpenLibraryHelpers.getPublishYear(book));
-    const isbn = $derived(OpenLibraryHelpers.getFirstISBN(book));
-	const bookUrl = $derived(OpenLibraryHelpers.getBookUrl(book.key));
     
 </script>
 
 <div class="card bg-base-100 w-96 shadow-sm">
-    {#if book.cover}
+    {#if book.coverImageUrl}
     <figure>
       <img
-        src="{book.cover.large}"
+        src="{book.coverImageUrl}"
         alt="Cover" />
     </figure>
     {/if}
     <div class="card-body">
       <h2 class="card-title">{book.title}</h2>
-      <p class="italic">{authors}</p>
+      <p class="italic">{book.authors}</p>
       <div class="book-meta">
-        {#if book.publishers && book.publishers[0]}
+        {#if book.publisher}
             <span class="meta-item">
                 <strong>Editorial:</strong> 
-                {book.publishers[0]}
+                {book.publisher}
             </span>
         {/if}
         
-        {#if publishYear}
+        {#if book.publishDate}
             <span class="meta-item">
-                <strong>Año:</strong> {publishYear}
+                <strong>Año:</strong> {book.publishDate}
             </span>
         {/if}
         
-        {#if book.number_of_pages}
+        {#if book.numberOfPages}
             <span class="meta-item">
-                <strong>Páginas:</strong> {book.number_of_pages}
+                <strong>Páginas:</strong> {book.numberOfPages}
             </span>
         {/if}
         
-        {#if isbn}
+        {#if book.isbn}
             <span class="meta-item isbn">
-                <strong>ISBN:</strong> {isbn}
+                <strong>ISBN:</strong> {book.isbn}
             </span>
         {/if}
       </div>
       <a 
-        href={bookUrl} 
+        href={book.bookUrl} 
         target="_blank" 
         rel="noopener noreferrer"
         class="external-link"

@@ -1,8 +1,7 @@
 <script lang="ts">
   import Quagga from '@ericblade/quagga2';
-	import { tick } from 'svelte';
 	import { fetchOpenLibraryBookQuery } from '../../routes/data.remote';
-	import type { OpenLibraryBook } from '$lib/types/openlibrary';
+	import type { NewBook } from '$lib/db/books';
 	import BookCard from './BookCard.svelte';
 
   let isScanning = $state(false);
@@ -11,7 +10,7 @@
   let scannedISBN: string | null = $state(null);
   let error = $state('');
   let success = $state('');
-  let book: OpenLibraryBook | null = $state(null);
+  let book: NewBook | null = $state(null);
 
   const startScanner = async () => {
     

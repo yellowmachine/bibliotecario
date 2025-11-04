@@ -1,20 +1,30 @@
 import { pgTable, serial, text, json, integer, timestamp } from "drizzle-orm/pg-core";
+import { createSelectSchema, createInsertSchema, createUpdateSchema } from 'drizzle-zod';
+
 
 export const books = pgTable('books', {
-	id: serial('id').primaryKey(),
-	isbn: text('isbn').notNull().unique(), // ISBN como clave única
-	openLibraryKey: text('open_library_key'), // /works/OL123W o /books/OL123M
+    id: serial('id').primaryKey(),
+	isbn: text('isbn').notNull().unique(), 
+	openLibraryKey: text('open_library_key'), 
 	title: text('title').notNull(),
 	subtitle: text('subtitle'),
-	authors: json('authors').$type<string[]>(), // Array de nombres de autores
-	publishDate: text('publish_date'), // Fecha como string (puede venir en varios formatos)
+	authors: text('authors'), 
+	publishDate: text('publish_date'), 
 	publisher: text('publisher'),
+    bookUrl: text('url'),
 	numberOfPages: integer('number_of_pages'),
 	description: text('description'),
-	subjects: json('subjects').$type<string[]>(), // Array de temas/categorías
-	languages: json('languages').$type<string[]>(), // Array de códigos de idioma
-	coverImageUrl: text('cover_image_url'), // URL de la imagen de portada
-	openLibraryData: json('open_library_data'), // Datos completos de OpenLibrary para backup
+	subjects: text('subject').array(), 
+	languages: text('languages').array(), 
+	coverImageUrl: text('cover_image_url'), 
+	openLibraryData: json('open_library_data'), 
 	createdAt: timestamp('created_at').defaultNow(),
 	updatedAt: timestamp('updated_at').defaultNow()
 });
+
+export type Book = typeof books.$inferSelect;
+export type NewBook = typeof books.$inferInsert;
+
+export const bookSelectSchema = createSelectSchema(books);
+export const bookInsertSchema = createInsertSchema(books);
+export const bookUpdateSchema = createUpdateSchema(books);

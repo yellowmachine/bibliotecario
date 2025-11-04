@@ -1,4 +1,4 @@
-import type { Handle } from '@sveltejs/kit';
+import { redirect, type Handle } from '@sveltejs/kit';
 import { paraglideMiddleware } from '$lib/paraglide/server';
 import { auth } from "$lib/auth";
 import { svelteKitHandler } from "better-auth/svelte-kit";
@@ -16,6 +16,14 @@ const authHandle: Handle = async ({ event, resolve }) => {
 	  event.locals.session = session.session;
 	  event.locals.user = session.user;
 	}
+
+    const url = event.url.pathname;
+	const isAuthenticated = !!event.locals.user;
+
+	if (!isAuthenticated && url !== '/' && url !== '/login') {
+		throw redirect(303, '/login'); // ← redirige a home
+	}
+
 	return svelteKitHandler({ event, resolve, auth, building });
   }
 
