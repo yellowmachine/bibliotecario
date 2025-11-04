@@ -1,6 +1,6 @@
 import { query } from '$app/server';
 import { z } from 'zod';
-import type { OpenLibraryBook } from '$lib/types/openlibrary';
+import type { OpenLibraryBook, OpenLibraryISBNResponse } from '$lib/types/openlibrary';
 
 // Tipos exportados
 export interface LibraryStats {
@@ -43,10 +43,7 @@ export const fetchOpenLibraryBookQuery = query(
 				throw new Error(`HTTP error! status: ${response.status}`);
 			}
 
-			const data = await response.json();
-
-            console.log(data);
-
+			const data: OpenLibraryISBNResponse = await response.json();
 			const bookKey = `ISBN:${isbn}`;
 			
 			if (!data[bookKey]) {
@@ -74,8 +71,8 @@ export const fetchOpenLibraryBookQuery = query(
 					key: lang.key || `/languages/${lang.name}`,
 					name: lang.name
 				})),
-				description: book.description,
-				covers: book.cover ? [book.cover.medium || book.cover.large || book.cover.small] : undefined,
+				//description: book.description,
+				cover: book.cover,
 				type: { key: "/type/edition" }
 			};
 

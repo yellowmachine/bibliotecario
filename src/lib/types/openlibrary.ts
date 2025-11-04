@@ -3,6 +3,66 @@
  * Basado en la documentación oficial: https://openlibrary.org/dev/docs/api/books
  */
 
+// src/lib/types/openlibrary-api.ts
+/** Representa la edición que devuelve la API
+ *  https://openlibrary.org/dev/docs/api/books (jscmd=data)
+ */
+export interface OpenLibraryEdition {
+    /** Ejemplo: "/books/OL7353617M" */
+    key?: string;
+  
+    /** Título del libro */
+    title?: string;
+    subtitle?: string;
+  
+    /** Autores (array de objetos) */
+    authors?: Array<{
+      key?: string;
+      name?: string;
+    }>;
+  
+    /** Editoriales */
+    publishers?: Array<{
+      name?: string;
+    }>;
+  
+    /** Fecha de publicación (texto libre) */
+    publish_date?: string;
+  
+    /** Número de páginas */
+    number_of_pages?: number;
+  
+    /** Temas / subjects */
+    subjects?: Array<{
+      name?: string;
+    }>;
+  
+    /** Idiomas */
+    languages?: Array<{
+      key?: string;
+      name?: string;
+    }>;
+  
+    /** Descripción (puede ser string o {value:string}) */
+    description?: string | { value?: string };
+  
+    /** Portada (objeto con URLs de distintos tamaños) */
+    cover?: {
+      small?: string;
+      medium?: string;
+      large?: string;
+    };
+  
+    /** Otros campos que puedan aparecer (no los usamos directamente) */
+    [extra: string]: unknown;
+  }
+  
+  /**
+   * La respuesta completa de la API cuando pedimos un ISBN concreto.
+   * Cada clave es `ISBN:<isbn>` y el valor es una `OpenLibraryEdition`.
+   */
+export type OpenLibraryISBNResponse = Record<string, OpenLibraryEdition>;
+
 // Tipo principal para un libro de OpenLibrary
 export interface OpenLibraryBook {
     // Identificadores básicos
@@ -69,7 +129,11 @@ export interface OpenLibraryBook {
     
     // URLs y enlaces
     url?: string;
-    covers?: string[]; // IDs de las portadas
+    cover?: {
+        small?: string;
+        medium?: string;
+        large?: string;
+    };
     
     // Información adicional
     contributions?: string[];
@@ -334,7 +398,3 @@ export interface OpenLibraryBook {
     loading: boolean;
   }
   
-  // Tipo para la respuesta de la API de OpenLibrary por ISBN
-  export interface OpenLibraryISBNResponse {
-    [isbn: string]: OpenLibraryBook;
-  }
