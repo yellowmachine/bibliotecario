@@ -1,6 +1,6 @@
 <script lang="ts">
   import Quagga from '@ericblade/quagga2';
-	import { fetchOpenLibraryBookQuery } from '../../routes/data.remote';
+	import { fetchOpenLibraryBookQuery, insertBook } from '$lib/remote/book.remote';
 	import type { NewBook } from '$lib/db/books';
 	import BookCard from './BookCard.svelte';
 
@@ -8,14 +8,26 @@
   let isLoading = $state(false);
   let manualISBN = $state('');
   let scannedISBN: string | null = $state(null);
-  let error = $state('');
-  let success = $state('');
+  let error: string | null = $state(null);
+  let success: string | null = $state(null);
   let book: NewBook | null = $state(null);
+
+
+  const save = async (b: NewBook) => {
+    try{
+      await insertBook(b);
+      error = null
+      success = "Libro guardado"
+    }catch{
+      success = null
+      error = "Error guardando libro"
+    }
+  }
 
   const startScanner = async () => {
     
     try {
-      error = '';  
+      error = null;  
       Quagga.init({
         inputStream: {
           name: "Live",
@@ -127,6 +139,7 @@
   });
 </script>
 
+
 <div class="isbn-scanner bg-gray-900 text-gray-100 p-6 rounded-lg border border-gray-700">
   <h2 class="text-2xl font-bold mb-6 text-center">📚 Escanear ISBN</h2>
   
@@ -156,6 +169,7 @@
   <div class="text-2xl font-bold mb-6 text-center">{scannedISBN}</div>
   {#if book}
   <BookCard {book} />
+  <button class="btn" onclick={() => book && save(book)}>Guardar en base de datos</button>
   {/if}
 
   <div class="manual-section mb-6">
@@ -178,6 +192,24 @@
     </p>
   </div>
 
+  {#if success}
+  <div role="alert" class="alert alert-success">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <span>{success}</span>
+  </div>
+  {/if}
+
+  {#if error}
+  <div role="alert" class="alert alert-error">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <span>{error}</span>
+  </div>
+  {/if}
+
   <!-- Estados de Carga -->
   {#if isLoading}
     <div class="loading text-center py-8">
@@ -186,18 +218,6 @@
     </div>
   {/if}
 
-  <!-- Mensajes -->
-  {#if error}
-    <div class="error bg-red-900/30 border border-red-700 text-red-300 p-4 rounded-md mb-4">
-      {error}
-    </div>
-  {/if}
-
-  {#if success}
-    <div class="success bg-green-900/30 border border-green-700 text-green-300 p-4 rounded-md mb-4">
-      {success}
-    </div>
-  {/if}
 </div>
 
 <style>

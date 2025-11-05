@@ -17,12 +17,12 @@ const authHandle: Handle = async ({ event, resolve }) => {
 	  event.locals.user = session.user;
 	}
 
-    const url = event.url.pathname;
-	const isAuthenticated = !!event.locals.user;
+    //const url = event.url.pathname;
+	//const isAuthenticated = !!event.locals.user;
 
-	if (!isAuthenticated && url !== '/' && url !== '/login') {
-		throw redirect(303, '/login'); // ← redirige a home
-	}
+	//if (!isAuthenticated && url !== '/' && url !== '/login') {
+	//	throw redirect(303, '/login'); // ← redirige a home
+	//}
 
 	return svelteKitHandler({ event, resolve, auth, building });
   }

@@ -2,6 +2,7 @@
 	import '../app.css';
 	import favicon from '$lib/assets/favicon.svg';
 	import UserSession from '$lib/components/UserSession.svelte';
+	import NavBar from '$lib/components/NavBar.svelte';
 
 	let { children } = $props();
 </script>
@@ -10,6 +11,6 @@
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
+<NavBar />
 <UserSession />
-
 {@render children()}

@@ -52,6 +52,8 @@ export interface OpenLibraryEdition {
       medium?: string;
       large?: string;
     };
+
+    works?: OpenLibraryWorkRef[];
   
     /** Otros campos que puedan aparecer (no los usamos directamente) */
     [extra: string]: unknown;
@@ -62,6 +64,20 @@ export interface OpenLibraryEdition {
    * Cada clave es `ISBN:<isbn>` y el valor es una `OpenLibraryEdition`.
    */
 export type OpenLibraryISBNResponse = Record<string, OpenLibraryEdition>;
+
+export interface OpenLibraryWorkRef {
+	key: string; // Ejemplo: "/works/OL45804W"
+}
+
+export type OpenLibraryDescription =
+	| string
+	| { type?: string; value: string };
+
+export interface OpenLibraryWork {
+	key: string;
+	title: string;
+	description?: OpenLibraryDescription;
+}
 
 // Tipo principal para un libro de OpenLibrary
 export interface OpenLibraryBook {
@@ -173,18 +189,6 @@ export interface OpenLibraryBook {
     website?: string;
   }
   
-  export interface OpenLibraryWork {
-    key: string; // Ej: "/works/OL45804W"
-    title?: string;
-    authors?: OpenLibraryAuthor[];
-    description?: string | OpenLibraryDescription;
-    subjects?: string[];
-    covers?: number[];
-    first_publish_date?: string;
-    dewey_number?: string[];
-    lc_classifications?: string[];
-  }
-  
   export interface OpenLibraryLanguage {
     key: string; // Ej: "/languages/eng"
     name?: string;
@@ -194,11 +198,6 @@ export interface OpenLibraryBook {
   export interface OpenLibraryContributor {
     name: string;
     role: string;
-  }
-  
-  export interface OpenLibraryDescription {
-    type: "/type/text";
-    value: string;
   }
   
   export interface OpenLibraryNote {
@@ -398,3 +397,8 @@ export interface OpenLibraryBook {
     loading: boolean;
   }
   
+  export function getDescriptionText(description?: OpenLibraryDescription): string | null {
+    if (!description) return null;
+    if (typeof description === 'string') return description;
+    return description.value ?? null;
+  }

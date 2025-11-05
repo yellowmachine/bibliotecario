@@ -1,5 +1,5 @@
 {
-  "id": "65b0b7e1-ab4f-494b-b3ad-c4e01bde6938",
+  "id": "0d7623e5-ec53-4052-a9ce-4725259f77a3",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -40,7 +40,7 @@
         },
         "authors": {
           "name": "authors",
-          "type": "json",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },
@@ -52,6 +52,12 @@
         },
         "publisher": {
           "name": "publisher",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "url": {
+          "name": "url",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -68,15 +74,15 @@
           "primaryKey": false,
           "notNull": false
         },
-        "subjects": {
-          "name": "subjects",
-          "type": "json",
+        "subject": {
+          "name": "subject",
+          "type": "text[]",
           "primaryKey": false,
           "notNull": false
         },
         "languages": {
           "name": "languages",
-          "type": "json",
+          "type": "text[]",
           "primaryKey": false,
           "notNull": false
         },

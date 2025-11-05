@@ -22,6 +22,7 @@
     <div class="card-body">
       <h2 class="card-title">{book.title}</h2>
       <p class="italic">{book.authors}</p>
+      <p>{book.description}</p>
       <div class="book-meta">
         {#if book.publisher}
             <span class="meta-item">
