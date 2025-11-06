@@ -51,13 +51,10 @@
       </div>
       <a 
         href={book.bookUrl} 
-        target="_blank" 
-        rel="noopener noreferrer"
         class="external-link"
     >
-        <button class="btn">
-            OpenLibrary ↗
-        </button>
+        OpenLibrary ↗ {book.bookUrl}
       </a>
     </div>
 </div>
+

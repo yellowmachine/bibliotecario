@@ -14,6 +14,9 @@ export default defineConfig({
 			outdir: './src/lib/paraglide'
 		})
 	],
+	server: {
+		allowedHosts: ["modern-abnormally-crab.ngrok-free.app"]
+	},
 	test: {
 		expect: { requireAssertions: true },
 		projects: [

@@ -28,53 +28,56 @@ export const insertBook = command(
 );
 
 async function fetchBookByISBN(isbn: string) {
-    const api = ky.create({
-        prefixUrl: 'https://openlibrary.org/api/',
-        timeout: 10_000,
-        headers: { 'User-Agent': 'LibrarianProject/1.0' }
-    });
+  const api = ky.create({
+    prefixUrl: "https://openlibrary.org",
+    timeout: 10_000,
+    headers: { "User-Agent": "LibrarianProject/1.0" },
+  });
 
-    // 1️⃣ Primer fetch: datos de la edición por ISBN
-    const booksData = await api
-      .get(`api/books?bibkeys=ISBN:${isbn}&jscmd=data&format=json`)
-      .json<Record<string, OpenLibraryEdition>>();
-  
-    const bookKey = `ISBN:${isbn}`;
-    const book = booksData[bookKey];
-    if (!book) throw new Error(`No se encontró ningún libro con ISBN ${isbn}`);
-  
-    // Intentar obtener descripción directamente
-    let description: string | null = null;
-    if (book.description) {
-      description =
-        typeof book.description === "string"
-          ? book.description
-          : book.description.value ?? null;
-    }
-  
-    // 2️⃣ Si no hay descripción, intentar buscarla en el "work"
-    if (!description && book.key) {
-      // Obtener datos de la edición completa
-      const editionData = await api.get(`${book.key}.json`).json<OpenLibraryEdition>();
-  
-      if (editionData.works?.[0]?.key) {
-        const workData = await api.get(`${editionData.works[0].key}.json`).json<OpenLibraryWork>();
-  
-        if (workData.description) {
-          description =
-            typeof workData.description === "string"
-              ? workData.description
-              : workData.description.value ?? null;
-        }
+  const clean = (p: string) => p.replace(/^\//, "");
+
+  const booksData = await api
+    .get(`api/books?bibkeys=ISBN:${isbn}&jscmd=data&format=json`)
+    .json<Record<string, OpenLibraryEdition>>();
+
+  const bookKey = `ISBN:${isbn}`;
+  const book = booksData[bookKey];
+  if (!book) throw new Error(`No se encontró ningún libro con ISBN ${isbn}`);
+
+  let description: string | null = null;
+  if (book.description) {
+    description =
+      typeof book.description === "string"
+        ? book.description
+        : book.description.value ?? null;
+  }
+
+  if (!description && book.key) {
+    const editionData = await api
+      .get(`${clean(book.key)}.json`)
+      .json<OpenLibraryEdition>();
+
+    if (editionData.works?.[0]?.key) {
+      const workData = await api
+        .get(`${clean(editionData.works[0].key)}.json`)
+        .json<OpenLibraryWork>();
+
+      if (workData.description) {
+        description =
+          typeof workData.description === "string"
+            ? workData.description
+            : workData.description.value ?? null;
       }
     }
-  
-    // Devuelve los datos unificados
-    return {
-      ...book,
-      description,
-    };
   }
+
+  console.log(book.key, description);
+
+  return {
+    ...book,
+    description,
+  };
+}
 
 // Query: Buscar libro por ISBN en OpenLibrary (server-side para evitar CORS)
 export const fetchOpenLibraryBookQuery = query(
@@ -83,8 +86,8 @@ export const fetchOpenLibraryBookQuery = query(
 	}),
 	async ({ isbn }) => {
 		try {
-            console.log(isbn);
-            const book = await fetchBookByISBN(isbn);
+      console.log(isbn);
+      const book = await fetchBookByISBN(isbn);
 						
 			// Transformar a nuestro formato OpenLibraryBook
 			const transformedBook: NewBook = {
@@ -98,6 +101,7 @@ export const fetchOpenLibraryBookQuery = query(
 				languages: book.languages?.map((lang: any) => lang.name) || null,
 				description: book.description,
 				coverImageUrl: book.cover?.large || null,
+        bookUrl: `https://openlibrary.org${book.key}`
 			};
 
 			return transformedBook;

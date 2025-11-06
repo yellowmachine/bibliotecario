@@ -3,6 +3,7 @@
 	import { fetchOpenLibraryBookQuery, insertBook } from '$lib/remote/book.remote';
 	import type { NewBook } from '$lib/db/books';
 	import BookCard from './BookCard.svelte';
+	import { is } from 'drizzle-orm';
 
   let isScanning = $state(false);
   let isLoading = $state(false);
@@ -135,7 +136,7 @@
     } catch (err) {
       console.error('Error procesando código detectado:', err);
       error = '❌ Error procesando código detectado.';
-      } finally {
+    } finally {
       isLoading = false;
       isScanning = false;
     }
@@ -148,6 +149,18 @@
       } 
 		};
 	}
+
+  async function onSave(book: NewBook){
+    try{
+      await save(book);
+      success = "Libro guardado"
+      error = null
+      isScanning = true;
+    }catch(err){
+      console.error("Error guardando libro", err)
+      error = JSON.stringify(err);
+    }
+  }
 
   $effect(() => {
     if(isScanning)
@@ -193,7 +206,7 @@
   <div class="text-2xl font-bold mb-6 text-center">{scannedISBN}</div>
   {#if book}
   <BookCard {book} />
-  <button class="btn" onclick={() => book && save(book)}>Guardar en base de datos</button>
+  <button class="btn" onclick={() => book && onSave(book)}>Guardar en base de datos</button>
   {/if}
 
   <div class="manual-section mb-6">
