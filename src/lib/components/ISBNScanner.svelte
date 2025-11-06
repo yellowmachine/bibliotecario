@@ -115,13 +115,14 @@
       isLoading = true;
       console.log("📘 Buscando libro en OpenLibrary...");
       book = await fetchOpenLibraryBookQuery({ isbn: code });
+      success = "Libro encontrado";
       
     } catch (err) {
       console.error('Error procesando código detectado:', err);
       error = '❌ Error procesando código detectado.';
     } finally {
       isLoading = false;
-      isScanning = false;
+      //isScanning = false;
     }
   };
 
@@ -138,7 +139,6 @@
       error = '❌ Error procesando código detectado.';
     } finally {
       isLoading = false;
-      isScanning = false;
     }
   }
 

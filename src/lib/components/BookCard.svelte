@@ -8,8 +8,26 @@
 	let {
 		book,
 	}: Props = $props();
+
+    let showFull = $state(false);
     
 </script>
+
+{#snippet description(arg?: string | null)}
+{#if arg}
+<p>
+{#if arg.length > 100 && !showFull}
+    {arg.slice(0, 100)}...
+    <button class="btn small" onclick={() => showFull = true}>leer más</button>
+{:else}
+    {arg}
+    {#if arg.length > 100}
+        <button class="btn small" onclick={() => showFull = false}>ocultar</button> 
+    {/if}
+{/if}
+</p>
+{/if}
+{/snippet}
 
 <div class="card bg-base-100 w-96 shadow-sm">
     {#if book.coverImageUrl}
@@ -22,7 +40,7 @@
     <div class="card-body">
       <h2 class="card-title">{book.title}</h2>
       <p class="italic">{book.authors}</p>
-      <p>{book.description}</p>
+      {@render description(book.description)}
       <div class="book-meta">
         {#if book.publisher}
             <span class="meta-item">
@@ -51,10 +69,13 @@
       </div>
       <a 
         href={book.bookUrl} 
+        target="_blank" 
+        rel="noopener noreferrer"
         class="external-link"
     >
-        OpenLibrary ↗ {book.bookUrl}
+        <button class="btn">
+            OpenLibrary ↗
+        </button>
       </a>
     </div>
 </div>
-
