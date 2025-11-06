@@ -10,7 +10,7 @@
 
 
 {#if text !== ""}
-<button use:copy={{ text }}>
+<button class="btn btn-info" use:copy={{ text }}>
     Copy
 </button>
 <pre>

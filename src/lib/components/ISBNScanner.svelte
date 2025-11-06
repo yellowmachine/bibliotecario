@@ -120,10 +120,34 @@
       error = '❌ Error procesando código detectado.';
     } finally {
       isLoading = false;
-      // Si quieres detener el escáner tras una lectura válida, puedes hacerlo aquí:
-      // isScanning = false;
+      isScanning = false;
     }
   };
+
+  async function search(isbn: string){
+    try{
+      if (isLoading) return;
+
+      isLoading = true;
+      console.log("📘 Buscando libro en OpenLibrary...");
+      book = await fetchOpenLibraryBookQuery({ isbn });
+
+    } catch (err) {
+      console.error('Error procesando código detectado:', err);
+      error = '❌ Error procesando código detectado.';
+      } finally {
+      isLoading = false;
+      isScanning = false;
+    }
+  }
+
+  function onEnter(fn: (...args: any) => void) {
+		return function (event: KeyboardEvent) {
+			if (event.key === 'Enter') {
+        fn()
+      } 
+		};
+	}
 
   $effect(() => {
     if(isScanning)
@@ -176,12 +200,13 @@
     <h3 class="text-lg font-semibold mb-3">✏️ Entrada Manual</h3>
     <div class="flex gap-3">
       <input
+        onkeydown={onEnter(() => search(manualISBN))}
         bind:value={manualISBN}
         placeholder="Ingresa ISBN (10 o 13 dígitos)"
         disabled={isLoading}
         class="flex-1 bg-neutral-900 border border-neutral-700 text-white placeholder-neutral-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-neutral-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
       />
-      <button class="btn" 
+      <button class="btn" onclick={() => search(manualISBN)}
         disabled={isLoading || !manualISBN.trim()}
       >
         🔍 Buscar

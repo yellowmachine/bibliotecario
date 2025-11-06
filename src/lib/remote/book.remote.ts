@@ -27,6 +27,55 @@ export const insertBook = command(
 	}
 );
 
+async function fetchBookByISBN(isbn: string) {
+    const api = ky.create({
+        prefixUrl: 'https://openlibrary.org/api/',
+        timeout: 10_000,
+        headers: { 'User-Agent': 'LibrarianProject/1.0' }
+    });
+
+    // 1️⃣ Primer fetch: datos de la edición por ISBN
+    const booksData = await api
+      .get(`api/books?bibkeys=ISBN:${isbn}&jscmd=data&format=json`)
+      .json<Record<string, OpenLibraryEdition>>();
+  
+    const bookKey = `ISBN:${isbn}`;
+    const book = booksData[bookKey];
+    if (!book) throw new Error(`No se encontró ningún libro con ISBN ${isbn}`);
+  
+    // Intentar obtener descripción directamente
+    let description: string | null = null;
+    if (book.description) {
+      description =
+        typeof book.description === "string"
+          ? book.description
+          : book.description.value ?? null;
+    }
+  
+    // 2️⃣ Si no hay descripción, intentar buscarla en el "work"
+    if (!description && book.key) {
+      // Obtener datos de la edición completa
+      const editionData = await api.get(`${book.key}.json`).json<OpenLibraryEdition>();
+  
+      if (editionData.works?.[0]?.key) {
+        const workData = await api.get(`${editionData.works[0].key}.json`).json<OpenLibraryWork>();
+  
+        if (workData.description) {
+          description =
+            typeof workData.description === "string"
+              ? workData.description
+              : workData.description.value ?? null;
+        }
+      }
+    }
+  
+    // Devuelve los datos unificados
+    return {
+      ...book,
+      description,
+    };
+  }
+
 // Query: Buscar libro por ISBN en OpenLibrary (server-side para evitar CORS)
 export const fetchOpenLibraryBookQuery = query(
 	z.object({
@@ -34,30 +83,8 @@ export const fetchOpenLibraryBookQuery = query(
 	}),
 	async ({ isbn }) => {
 		try {
-
             console.log(isbn);
-
-			const api = ky.create({
-				prefixUrl: 'https://openlibrary.org/api/',
-				timeout: 10_000,
-				headers: { 'User-Agent': 'LibrarianProject/1.0' }
-			});
-
-			// 1️⃣ Primer fetch: datos básicos del libro
-			const booksData = await api
-				.get(`api/books?bibkeys=ISBN:${isbn}&jscmd=data&format=json`)
-				.json<Record<string, OpenLibraryEdition>>();
-
-			const bookKey = `ISBN:${isbn}`;
-			const book = booksData[bookKey];
-			if (!book) throw new Error(`Book not found for ISBN ${isbn}`);
-
-			// 2️⃣ Obtener el work key
-			const workKey = book.works?.[0]?.key;
-			if (!workKey) throw new Error(`No work key found for book ${isbn}`);
-
-			// 3️⃣ Segundo fetch: descripción u otros detalles
-			const workData = await api.get(`${workKey}.json`).json<OpenLibraryWork>();
+            const book = await fetchBookByISBN(isbn);
 						
 			// Transformar a nuestro formato OpenLibraryBook
 			const transformedBook: NewBook = {
@@ -69,7 +96,7 @@ export const fetchOpenLibraryBookQuery = query(
 				numberOfPages: book.number_of_pages || null,
 				subjects: book.subjects?.map((subject: any) => subject.name || subject) || null,
 				languages: book.languages?.map((lang: any) => lang.name) || null,
-				description: getDescriptionText(workData.description),
+				description: book.description,
 				coverImageUrl: book.cover?.large || null,
 			};
 
