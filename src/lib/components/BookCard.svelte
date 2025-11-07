@@ -18,11 +18,11 @@
 <p>
 {#if arg.length > 100 && !showFull}
     {arg.slice(0, 100)}...
-    <button class="btn small" onclick={() => showFull = true}>leer más</button>
+    <button class="mt-2 inline-block text-sm font-medium text-primary hover:text-primary-focus cursor-pointer select-none transition-colors" onclick={() => showFull = true}>leer más</button>
 {:else}
     {arg}
     {#if arg.length > 100}
-        <button class="btn small" onclick={() => showFull = false}>ocultar</button> 
+        <button class="mt-2 inline-block text-sm font-medium text-primary hover:text-primary-focus cursor-pointer select-none transition-colors" onclick={() => showFull = false}>ocultar</button> 
     {/if}
 {/if}
 </p>

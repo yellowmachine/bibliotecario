@@ -5,7 +5,7 @@
     export let books: Book[];
 </script>
 
-<div class="grid grid-cols-4 gap-4">
+<div class="grid md:grid-cols-4 gap-4">
     {#each books as book(book.id)}
     <BookCard {book} />
     {/each}

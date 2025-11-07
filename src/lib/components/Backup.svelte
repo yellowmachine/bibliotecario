@@ -4,7 +4,7 @@
     let text: string = $state("");
 
     async function getLibrary(){
-        text = JSON.stringify(await queryLibrary());
+        text = JSON.stringify(await queryLibrary(), null, 2);
     }
 </script>
 
