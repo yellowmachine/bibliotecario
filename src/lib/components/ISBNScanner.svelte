@@ -176,10 +176,32 @@
   });
 </script>
 
+{#if success}
+<div role="alert" class="alert alert-success">
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+  <span>{success}</span>
+</div>
+{/if}
+
+{#if error}
+<div role="alert" class="alert alert-error">
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+  <span>{error}</span>
+</div>
+{/if}
+
+{#if book}
+<button class="btn btn-link" onclick={() => book && onSave(book)}>Guardar en base de datos</button>
+<BookCard {book} />
+{/if}
+<div class="text-2xl font-bold mb-6 text-center">Scanned: {scannedISBN}</div>
 
 <div class="isbn-scanner bg-gray-900 text-gray-100 p-6 rounded-lg border border-gray-700">
   <h2 class="text-2xl font-bold mb-6 text-center">📚 Escanear ISBN</h2>
-  
   <div class="scanner-section mb-6">
     <div class="flex gap-3 mb-4">
       {#if !isScanning}
@@ -203,12 +225,6 @@
     {/if}
   </div>
 
-  <div class="text-2xl font-bold mb-6 text-center">{scannedISBN}</div>
-  {#if book}
-  <BookCard {book} />
-  <button class="btn" onclick={() => book && onSave(book)}>Guardar en base de datos</button>
-  {/if}
-
   <div class="manual-section mb-6">
     <h3 class="text-lg font-semibold mb-3">✏️ Entrada Manual</h3>
     <div class="flex gap-3">
@@ -229,24 +245,6 @@
       Ejemplo: 9780134685991 o 0134685997
     </p>
   </div>
-
-  {#if success}
-  <div role="alert" class="alert alert-success">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-    <span>{success}</span>
-  </div>
-  {/if}
-
-  {#if error}
-  <div role="alert" class="alert alert-error">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-    <span>{error}</span>
-  </div>
-  {/if}
 
   <!-- Estados de Carga -->
   {#if isLoading}

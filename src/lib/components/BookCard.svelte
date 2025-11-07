@@ -34,7 +34,10 @@
     <figure>
       <img
         src="{book.coverImageUrl}"
-        alt="Cover" />
+        alt="Cover" 
+        loading="lazy"
+        class="w-full h-auto object-cover"
+        />
     </figure>
     {/if}
     <div class="card-body">
