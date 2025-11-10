@@ -1,15 +1,26 @@
 <script lang="ts">
     import type { NewBook } from '$lib/db/books';
+    import { updateBook } from '$lib/remote/book.remote';
 	
 	interface Props {
-		book: NewBook
+        update: boolean;
+		book: NewBook;
 	}
 
 	let {
 		book,
+        update=false
 	}: Props = $props();
 
     let showFull = $state(false);
+    let editing = $state(false);
+    let location = $state('');
+
+    async function onUpdateBook(){
+        if(!location) return;
+        await updateBook({...book, location});
+        editing = false;
+    }
     
 </script>
 
@@ -26,6 +37,14 @@
     {/if}
 {/if}
 </p>
+{/if}
+{/snippet}
+
+{#snippet updateSnippet()}
+{#if editing}
+<span class="text-xs text-gray-400">Location: <input type="text" bind:value={location} /><button class="btn btn-primary" onclick={onUpdateBook}>Guardar</button></span>
+{:else}
+<span class="text-xs text-gray-400">Location: {book.location}</span>
 {/if}
 {/snippet}
 
@@ -69,6 +88,7 @@
                 <strong>ISBN:</strong> {book.isbn}
             </span>
         {/if}
+        {@render updateSnippet()}
       </div>
       <a 
         href={book.bookUrl} 

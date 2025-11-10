@@ -14,6 +14,7 @@ CREATE TABLE "books" (
 	"languages" text[],
 	"cover_image_url" text,
 	"open_library_data" json,
+	"location" text,
 	"created_at" timestamp DEFAULT now(),
 	"updated_at" timestamp DEFAULT now(),
 	CONSTRAINT "books_isbn_unique" UNIQUE("isbn")

@@ -1,7 +1,7 @@
 import { command, query } from '$app/server';
 import { z } from 'zod';
 import { type OpenLibraryEdition, type OpenLibraryWork } from '$lib/types/openlibrary';
-import { bookInsertSchema, books, type NewBook } from '$lib/db/books';
+import { bookInsertSchema, books, bookUpdateSchema, type Book, type NewBook } from '$lib/db/books';
 import ky from 'ky';
 import { db } from '$lib/server/db';
 import { eq } from 'drizzle-orm';
@@ -26,6 +26,15 @@ export const queryLibrary = query(
 export const insertBook = command(
 	bookInsertSchema, async (arg: NewBook) => {
 		await db.insert(books).values(arg);
+	}
+);
+
+export const updateBook = command(
+	bookUpdateSchema, async (arg) => {
+    if (!arg.id) {
+      throw new Error('Book ID is required for update');
+    }
+		await db.update(books).set(arg).where(eq(books.id, arg.id));
 	}
 );
 

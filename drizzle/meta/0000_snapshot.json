@@ -1,5 +1,5 @@
 {
-  "id": "0d7623e5-ec53-4052-a9ce-4725259f77a3",
+  "id": "ab37efa3-cfbe-4dc5-b990-dea7a0016f11",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -95,6 +95,12 @@
         "open_library_data": {
           "name": "open_library_data",
           "type": "json",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "location": {
+          "name": "location",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },

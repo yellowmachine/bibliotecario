@@ -18,6 +18,7 @@ export const books = pgTable('books', {
 	languages: text('languages').array(), 
 	coverImageUrl: text('cover_image_url'), 
 	openLibraryData: json('open_library_data'), 
+    location: text('location'),
 	createdAt: timestamp('created_at').defaultNow(),
 	updatedAt: timestamp('updated_at').defaultNow()
 });
