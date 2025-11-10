@@ -1,9 +1,11 @@
 import { command, query } from '$app/server';
 import { z } from 'zod';
-import { getDescriptionText, type OpenLibraryEdition, type OpenLibraryWork } from '$lib/types/openlibrary';
+import { type OpenLibraryEdition, type OpenLibraryWork } from '$lib/types/openlibrary';
 import { bookInsertSchema, books, type NewBook } from '$lib/db/books';
 import ky from 'ky';
 import { db } from '$lib/server/db';
+import { eq } from 'drizzle-orm';
+import { error } from '@sveltejs/kit';
 
 
 export interface LibraryStats {
@@ -42,7 +44,12 @@ async function fetchBookByISBN(isbn: string) {
 
   const bookKey = `ISBN:${isbn}`;
   const book = booksData[bookKey];
-  if (!book) throw new Error(`No se encontró ningún libro con ISBN ${isbn}`);
+
+  if (!book) {
+    throw error(404, {
+      message: `No se encontró ningún libro con ISBN ${isbn}`
+    });
+  }
 
   let description: string | null = null;
   if (book.description) {
@@ -87,6 +94,22 @@ export const fetchOpenLibraryBookQuery = query(
 	async ({ isbn }) => {
 		try {
       console.log(isbn);
+
+      const result = await db
+        .select()
+        .from(books)
+        .where(eq(books.isbn, isbn))
+        .limit(1);
+
+      const exists = result[0];
+
+      if(exists){
+        return {
+          book: exists,
+          inLibrary: true
+        };
+      }
+
       const book = await fetchBookByISBN(isbn);
 						
 			// Transformar a nuestro formato OpenLibraryBook
@@ -104,7 +127,7 @@ export const fetchOpenLibraryBookQuery = query(
         bookUrl: `https://openlibrary.org${book.key}`
 			};
 
-			return transformedBook;
+			return {book: transformedBook, inLibrary: false};
 
 		} catch (error) {
 			console.error('Error fetching book from OpenLibrary:', error);

@@ -3,7 +3,6 @@
 	import { fetchOpenLibraryBookQuery, insertBook } from '$lib/remote/book.remote';
 	import type { NewBook } from '$lib/db/books';
 	import BookCard from './BookCard.svelte';
-	import { is } from 'drizzle-orm';
 
   let isScanning = $state(false);
   let isLoading = $state(false);
@@ -12,6 +11,10 @@
   let error: string | null = $state(null);
   let success: string | null = $state(null);
   let book: NewBook | null = $state(null);
+  let inLibrary: boolean | null = $state(null);
+
+  let isValidISBN = $derived(/^\d{10}(\d{3})?$/.test(manualISBN));
+	let hasError = $derived(manualISBN.length > 0 && !isValidISBN);
 
 
   const save = async (b: NewBook) => {
@@ -19,10 +22,25 @@
       await insertBook(b);
       error = null
       success = "Libro guardado"
+      book = null;
+      scannedISBN = null;
+      manualISBN = "";
+      stopScanner();
+      startScanner();
     }catch{
       success = null
       error = "Error guardando libro"
     }
+  }
+
+  function discard(){
+    book = null;
+    scannedISBN = null;
+    manualISBN = "";
+    error = null;
+    success = null;
+    stopScanner();
+    startScanner();
   }
 
   const startScanner = async () => {
@@ -114,15 +132,20 @@
 
       isLoading = true;
       console.log("📘 Buscando libro en OpenLibrary...");
-      book = await fetchOpenLibraryBookQuery({ isbn: code });
+      const fetched = await fetchOpenLibraryBookQuery({ isbn: code });
+      book = fetched.book;
+      inLibrary = fetched.inLibrary;
       success = "Libro encontrado";
       
     } catch (err) {
       console.error('Error procesando código detectado:', err);
-      error = '❌ Error procesando código detectado.';
+      if (err instanceof Error) {
+        error = `Error procesando código detectado. ${err.message}`;
+      } else {
+        error = `Error desconocido al procesar el código.`;
+      }
     } finally {
       isLoading = false;
-      //isScanning = false;
     }
   };
 
@@ -132,11 +155,16 @@
 
       isLoading = true;
       console.log("📘 Buscando libro en OpenLibrary...");
-      book = await fetchOpenLibraryBookQuery({ isbn });
-
+      const fetched = await fetchOpenLibraryBookQuery({ isbn });
+      book = fetched.book;
+      inLibrary = fetched.inLibrary;
     } catch (err) {
       console.error('Error procesando código detectado:', err);
-      error = '❌ Error procesando código detectado.';
+      if (err instanceof Error) {
+        error = `Error procesando código detectado. ${err.message}`;
+      } else {
+        error = `Error desconocido al procesar el código.`;
+      }
     } finally {
       isLoading = false;
     }
@@ -176,12 +204,20 @@
   });
 </script>
 
+{#if isLoading}
+  <div class="loading text-center py-8">
+    <div class="animate-spin inline-block w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mb-3"></div>
+    <p class="text-gray-300">Buscando libro...</p>
+  </div>
+{/if}
+
 {#if success}
 <div role="alert" class="alert alert-success">
   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
   </svg>
   <span>{success}</span>
+  <button class="btn btn-link" onclick={() => discard()}>Descartar.</button>
 </div>
 {/if}
 
@@ -191,11 +227,16 @@
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
   </svg>
   <span>{error}</span>
+  <button class="btn btn-link" onclick={() => discard()}>Descartar.</button>
 </div>
 {/if}
 
 {#if book}
+{#if inLibrary}
+<button class="btn btn-link" onclick={() => discard()}>El libro ya está en la base de datos. Descartar.</button>
+{:else}
 <button class="btn btn-link" onclick={() => book && onSave(book)}>Guardar en base de datos</button>
+{/if}
 <BookCard {book} />
 {/if}
 <div class="text-2xl font-bold mb-6 text-center">Scanned: {scannedISBN}</div>
@@ -228,15 +269,21 @@
   <div class="manual-section mb-6">
     <h3 class="text-lg font-semibold mb-3">✏️ Entrada Manual</h3>
     <div class="flex gap-3">
-      <input
-        onkeydown={onEnter(() => search(manualISBN))}
+      <input 
+        type="number"
+        onkeydown={onEnter(() => search(`${manualISBN}`))}
         bind:value={manualISBN}
         placeholder="Ingresa ISBN (10 o 13 dígitos)"
         disabled={isLoading}
-        class="flex-1 bg-neutral-900 border border-neutral-700 text-white placeholder-neutral-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-neutral-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+        class="
+          flex-1 bg-neutral-900 border text-white placeholder-neutral-400 
+          rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-white/20 
+          transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed
+          {hasError ? 'border-red-500 focus:border-red-500' : 'border-neutral-700 focus:border-neutral-500'}
+        "
       />
-      <button class="btn" onclick={() => search(manualISBN)}
-        disabled={isLoading || !manualISBN.trim()}
+      <button class="btn" onclick={() => search(`${manualISBN}`)}
+        disabled={isLoading || hasError}
       >
         🔍 Buscar
       </button>
@@ -245,15 +292,6 @@
       Ejemplo: 9780134685991 o 0134685997
     </p>
   </div>
-
-  <!-- Estados de Carga -->
-  {#if isLoading}
-    <div class="loading text-center py-8">
-      <div class="animate-spin inline-block w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mb-3"></div>
-      <p class="text-gray-300">Buscando libro...</p>
-    </div>
-  {/if}
-
 </div>
 
 <style>

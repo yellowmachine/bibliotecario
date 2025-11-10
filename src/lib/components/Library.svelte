@@ -16,24 +16,26 @@
 		const matchesAuthor = !authorRegex || (book.authors && authorRegex.test(book.authors));
 		return matchesTitle && matchesAuthor;
 	});
+
+    $: total = filteredBooks.length;
 </script>
 
-<!-- Opcional: inputs para probar el filtro -->
 <div class="p-4 space-y-4">
 	<input
 		type="text"
 		bind:value={title}
 		placeholder="Filtrar por título..."
-		class="input input-bordered w-full"
+		class="input input-bordered w-full md:w-1/3"
 	/>
 	<input
 		type="text"
 		bind:value={author}
 		placeholder="Filtrar por autor..."
-		class="input input-bordered w-full"
+		class="input input-bordered w-full md:w-1/3"
 	/>
 </div>
 
+<div class="mb-4">Total: {total}</div>
 <div class="grid md:grid-cols-4 gap-4">
 	{#each filteredBooks as book (book.id)}
 		<BookCard {book} />
