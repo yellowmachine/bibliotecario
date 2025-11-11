@@ -19,6 +19,8 @@
 		"db:push": "drizzle-kit push",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
+		"db:prodmigrate2": "drizzle-kit migrate --config drizzle-prod.config.ts",
+		"db:prodmigrate": "dotenv -e .env.production -- drizzle-kit migrate --config drizzle-prod.config.ts",
 		"db:studio": "drizzle-kit studio",
 		"storybook": "storybook dev -p 6006",
 		"build-storybook": "storybook build"
