@@ -38,6 +38,6 @@
 <div class="mb-4">Total: {total}</div>
 <div class="grid md:grid-cols-4 gap-4">
 	{#each filteredBooks as book (book.id)}
-		<BookCard update={true} {book} />
+		<BookCard mode={"update"} {book} />
 	{/each}
 </div>

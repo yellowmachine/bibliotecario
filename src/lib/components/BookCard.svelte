@@ -3,13 +3,13 @@
     import { updateBook } from '$lib/remote/book.remote';
 	
 	interface Props {
-        update: boolean;
+        mode: "insert" | "update";
 		book: NewBook;
 	}
 
 	let {
-		book,
-        update=false
+		book=$bindable(),
+        mode,
 	}: Props = $props();
 
     let showFull = $state(false);
@@ -17,9 +17,14 @@
     let location = $state('');
 
     async function onUpdateBook(){
-        if(!location) return;
-        await updateBook({...book, location});
-        editing = false;
+        try{
+            if(!location) return;
+            await updateBook({...book, location});
+            book.location = location;
+            editing = false;
+        }catch(err){
+            console.error("Error guardando libro", err)
+        }
     }
     
 </script>
@@ -40,11 +45,27 @@
 {/if}
 {/snippet}
 
+{#snippet modeSnippet()}
+{#if mode === "insert"}
+{@render insertSnippet()}
+{:else}
+{@render updateSnippet()}
+{/if}
+{/snippet}
+
+{#snippet insertSnippet()}
+<span class="text-xs text-gray-400"><input type="text" class="w-50" bind:value={book.location} placeholder="Localizador" /></span>
+{/snippet}
+
 {#snippet updateSnippet()}
 {#if editing}
-<span class="text-xs text-gray-400">Location: <input type="text" bind:value={location} /><button class="btn btn-primary" onclick={onUpdateBook}>Guardar</button></span>
+<div class="text-xs text-gray-400">
+    <input class="w-32 sm:w-56 md:w-64 text-sm" type="text" bind:value={location} placeholder="Localizador" />
+    <button class="btn btn-primary" onclick={onUpdateBook}>Guardar</button>
+    <button class="btn btn-error" onclick={() => editing = false}>Cancelar</button>
+</div>
 {:else}
-<span class="text-xs text-gray-400">Location: {book.location}</span>
+<button class="btn text-gray-400" onclick={() => editing = true}>Localizador: {book.location}</button>
 {/if}
 {/snippet}
 
@@ -88,7 +109,7 @@
                 <strong>ISBN:</strong> {book.isbn}
             </span>
         {/if}
-        {@render updateSnippet()}
+        {@render modeSnippet()}
       </div>
       <a 
         href={book.bookUrl} 

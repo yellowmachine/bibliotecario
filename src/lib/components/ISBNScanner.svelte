@@ -237,7 +237,7 @@
 {:else}
 <button class="btn btn-link" onclick={() => book && onSave(book)}>Guardar en base de datos</button>
 {/if}
-<BookCard update={false} {book} />
+<BookCard mode={"insert"} {book} />
 {/if}
 <div class="text-2xl font-bold mb-6 text-center">Scanned: {scannedISBN}</div>
 
