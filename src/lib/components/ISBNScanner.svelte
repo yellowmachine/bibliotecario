@@ -19,16 +19,15 @@
 
   const save = async (b: NewBook) => {
     try{
-      console.log('1');
       await insertBook(b);
-      console.log('2');
       error = null
       success = "Libro guardado"
       book = null;
       scannedISBN = null;
       manualISBN = "";
-      //stopScanner();
-      //startScanner();
+      stopScanner();
+      startScanner();
+      isScanning = true;
     }catch(err){
       success = null
       error = `Error guardando libro: ${JSON.stringify(err)}`;
@@ -180,11 +179,6 @@
       } 
 		};
 	}
-
-  async function onSave(book: NewBook){
-    await save(book);
-    isScanning = true;
-  }
 
   $effect(() => {
     if(isScanning)
