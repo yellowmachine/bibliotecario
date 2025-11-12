@@ -27,9 +27,10 @@
       manualISBN = "";
       stopScanner();
       startScanner();
-    }catch{
+    }catch(err){
       success = null
-      error = "Error guardando libro"
+      error = `Error guardando libro: ${JSON.stringify(err)}`;
+      console.log(err);
     }
   }
 
@@ -179,15 +180,8 @@
 	}
 
   async function onSave(book: NewBook){
-    try{
-      await save(book);
-      success = "Libro guardado"
-      error = null
-      isScanning = true;
-    }catch(err){
-      console.error("Error guardando libro", err)
-      error = JSON.stringify(err);
-    }
+    await save(book);
+    isScanning = true;
   }
 
   $effect(() => {
