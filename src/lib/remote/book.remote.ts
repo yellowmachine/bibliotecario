@@ -25,7 +25,14 @@ export const queryLibrary = query(
 
 export const insertBook = command(
 	bookInsertSchema, async (arg: NewBook) => {
-		await db.insert(books).values(arg);
+    try{
+      console.log(arg);
+		  await db.insert(books).values(arg);
+      console.log("Libro guardado");
+    }catch(err){
+      console.log(err);
+      throw new Error('Error guardando libro');
+    }
 	}
 );
 
