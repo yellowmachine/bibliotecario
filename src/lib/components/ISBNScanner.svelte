@@ -19,14 +19,16 @@
 
   const save = async (b: NewBook) => {
     try{
+      console.log('1');
       await insertBook(b);
+      console.log('2');
       error = null
       success = "Libro guardado"
       book = null;
       scannedISBN = null;
       manualISBN = "";
-      stopScanner();
-      startScanner();
+      //stopScanner();
+      //startScanner();
     }catch(err){
       success = null
       error = `Error guardando libro: ${JSON.stringify(err)}`;
@@ -229,7 +231,7 @@
 {#if inLibrary}
 <button class="btn btn-link" onclick={() => discard()}>El libro ya está en la base de datos. Descartar.</button>
 {:else}
-<button class="btn btn-link" onclick={() => book && onSave(book)}>Guardar en base de datos</button>
+<button class="btn btn-link" onclick={() => save(book!)}>Guardar en base de datos</button>
 {/if}
 <BookCard mode={"insert"} {book} />
 {/if}
