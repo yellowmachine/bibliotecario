@@ -3,8 +3,9 @@ import { z } from 'zod';
 import ky from "ky";
 import { env } from "$env/dynamic/private";
 import type { TMDB_SearchResponse, TMDbMovieDetails } from '$lib/types/tmdb';
-import { movieInsertSchema, movies, type NewMovie } from '$lib/db/movies';
+import { movieInsertSchema, movies, movieUpdateSchema, type NewMovie } from '$lib/db/movies';
 import { db } from '$lib/server/db';
+import { eq } from 'drizzle-orm';
 
 
 const createSlug = (title: string): string => {
@@ -79,5 +80,23 @@ export const queryMovies = query(
       console.log(err);
       throw new Error('Error guardando película');
     }
+	}
+);
+
+export const updateMovie = command(
+	movieUpdateSchema, async (arg) => {
+    if (!arg.id) {
+      throw new Error('Movie ID is required for update');
+    }
+		await db.update(movies).set(arg).where(eq(movies.id, arg.id));
+	}
+);
+
+export const deleteMovie = command(
+	z.number(), async (arg) => {
+    if (!arg) {
+      throw new Error('Movie ID is required for update');
+    }
+		await db.delete(movies).where(eq(movies.id, arg));
 	}
 );

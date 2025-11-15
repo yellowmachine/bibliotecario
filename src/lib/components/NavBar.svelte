@@ -4,7 +4,8 @@
     </div>
     <div class="flex-none">
       <ul class="menu menu-horizontal px-1">
-        <li><a href="/">Scan</a></li>
+        <li><a href="/">Scan ISBN</a></li>
+        <li><a href="/movie">Buscar películas</a></li>
         <li>
           <details>
             <summary>Biblioteca</summary>

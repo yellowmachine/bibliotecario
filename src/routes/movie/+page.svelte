@@ -10,6 +10,14 @@
     movies = await queryMovies(searchQuery);
   };
 
+  function onEnter(fn: (...args: any) => void) {
+		return function (event: KeyboardEvent) {
+			if (event.key === 'Enter') {
+        fn()
+      } 
+		};
+	}
+
 </script>
 
 <div class="container">
@@ -23,7 +31,8 @@
     <div class="col-md-12">
       <div class="form-group">
         <label for="search">Buscar</label>
-        <input type="text" class="form-control" id="search" placeholder="Buscar..." bind:value={searchQuery} />
+        <input type="text" class="form-control" id="search" placeholder="Buscar..." bind:value={searchQuery} onkeydown={onEnter(query)}
+        />
         <button type="button" class="btn btn-primary" onclick={query}>Buscar</button>
       </div>
     </div>
