@@ -8,6 +8,13 @@
       "when": 1762814931073,
       "tag": "0000_daily_harpoon",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1763204448665,
+      "tag": "0001_tan_proteus",
+      "breakpoints": true
     }
   ]
 }

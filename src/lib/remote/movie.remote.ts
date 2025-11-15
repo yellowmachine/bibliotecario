@@ -1,8 +1,11 @@
-import { query } from '$app/server';
+import { query, command } from '$app/server';
 import { z } from 'zod';
 import ky from "ky";
 import { env } from "$env/dynamic/private";
-import type { Movie, TMDB_SearchResponse, TMDbMovieDetails } from '$lib/types/tmdb';
+import type { TMDB_SearchResponse, TMDbMovieDetails } from '$lib/types/tmdb';
+import { movieInsertSchema, movies, type NewMovie } from '$lib/db/movies';
+import { db } from '$lib/server/db';
+
 
 const createSlug = (title: string): string => {
     return title
@@ -15,7 +18,7 @@ const createSlug = (title: string): string => {
       .replace(/-+/g, '-');
   };
 
-const enrichMovie = async (movie: any, apiKey: string): Promise<Movie> => {
+const enrichMovie = async (movie: any, apiKey: string): Promise<NewMovie> => {
     const url = `https://api.themoviedb.org/3/movie/${movie.id}?language=es-ES&append_to_response=credits`;
     const data = await ky.get(url, {
       headers: { Authorization: `Bearer ${apiKey}` },
@@ -32,7 +35,7 @@ const enrichMovie = async (movie: any, apiKey: string): Promise<Movie> => {
       title: data.title,
       year,
       director,
-      actors,
+      actors: actors.join(', '),
       genres: data.genres.map((g: any) => g.name),
       poster: data.poster_path ? `https://image.tmdb.org/t/p/w500${data.poster_path}` : '',
       tmdbUrl: `https://www.themoviedb.org/movie/${data.id}-${slug}`,
@@ -67,3 +70,14 @@ export const queryMovies = query(
       return enrichedMovies;
     }
   );
+
+  export const insertMovie = command(
+	movieInsertSchema, async (arg: NewMovie) => {
+    try{
+		  await db.insert(movies).values(arg);
+    }catch(err){
+      console.log(err);
+      throw new Error('Error guardando película');
+    }
+	}
+);

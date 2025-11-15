@@ -1,9 +1,9 @@
 <script lang="ts">
-  import type { Movie } from '$lib/types/tmdb';
+  import type { NewMovie } from '$lib/db/movies';
   import { queryMovies } from '$lib/remote/movie.remote';
 	import MovieCard from '$lib/components/MovieCard.svelte';
   
-  let movies: Movie[] | null = null;
+  let movies: NewMovie[] | null = null;
   let searchQuery: string;
 
   const query = async () => {
@@ -36,7 +36,7 @@
       <div class="col-md-12">
         <div class="card-columns">
           {#each movies as movie}
-            <MovieCard movie={movie} />
+            <MovieCard mode="insert" movie={movie} />
           {/each}
         </div>
       </div>

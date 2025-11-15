@@ -99,23 +99,6 @@ export interface TMDB_Movie {
   release_date: string,
   title: string,
 }
- 
-export interface Movie {
-  adult: boolean,
-  backdrop_path: string | null,
-  genres: string[],
-  id: number,
-  original_language: string,
-  original_title: string,
-  overview: string | null
-  poster: string,
-  release_date: string,
-  title: string,
-  year: string,
-  director: string,
-  actors: string[],
-  tmdbUrl: string
-}
 
 export type TMDB_SearchResponse = {
   page: number;

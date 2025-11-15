@@ -10,6 +10,7 @@
             <summary>Biblioteca</summary>
             <ul class="bg-base-100 rounded-t-none p-2">
               <li><a href="/library">Mis libros</a></li>
+              <li><a href="/movielibrary">Mis películas</a></li>
               <li><a href="/backup">Backup</a></li>
             </ul>
           </details>
