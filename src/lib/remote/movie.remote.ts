@@ -57,7 +57,7 @@ export const queryMovies = query(
       }).json<TMDB_SearchResponse>();
   
       if (searchResponse.total_results === 0) {
-        throw new Error('No se encontraron resultados');
+        return [];
       }
   
       // === TOMAR MÁXIMO 10 PELÍCULAS ===
@@ -74,29 +74,30 @@ export const queryMovies = query(
 
   export const insertMovie = command(
 	movieInsertSchema, async (arg: NewMovie) => {
-    try{
-		  await db.insert(movies).values(arg);
-    }catch(err){
-      console.log(err);
-      throw new Error('Error guardando película');
-    }
+        try{
+            const {id, ...movie} = arg;
+		    await db.insert(movies).values(movie);
+        }catch(err){
+            console.log(err);
+            throw new Error('Error guardando película');
+        }
 	}
 );
 
 export const updateMovie = command(
 	movieUpdateSchema, async (arg) => {
-    if (!arg.id) {
-      throw new Error('Movie ID is required for update');
-    }
-		await db.update(movies).set(arg).where(eq(movies.id, arg.id));
+        if (!arg.id) {
+            throw new Error('Movie ID is required for update');
+        }
+	    await db.update(movies).set(arg).where(eq(movies.id, arg.id));
 	}
 );
 
 export const deleteMovie = command(
 	z.number(), async (arg) => {
-    if (!arg) {
-      throw new Error('Movie ID is required for update');
-    }
+        if (!arg) {
+            throw new Error('Movie ID is required for update');
+        }
 		await db.delete(movies).where(eq(movies.id, arg));
 	}
 );

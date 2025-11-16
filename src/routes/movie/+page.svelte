@@ -3,7 +3,7 @@
   import { queryMovies } from '$lib/remote/movie.remote';
 	import MovieCard from '$lib/components/MovieCard.svelte';
   
-  let movies: NewMovie[] | null = null;
+  let movies: NewMovie[] = [];
   let searchQuery: string;
 
   const query = async () => {
@@ -17,6 +17,11 @@
       } 
 		};
 	}
+
+  function cleanQuery(){
+    searchQuery = "";
+    movies = [];
+  }
 
 </script>
 
@@ -40,15 +45,13 @@
 
   <hr />
 
-  {#if movies}
-    <div class="row">
-      <div class="col-md-12">
-        <div class="card-columns">
-          {#each movies as movie}
-            <MovieCard mode="insert" movie={movie} />
-          {/each}
-        </div>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card-columns">
+        {#each movies as movie(movie.id)}
+          <MovieCard {cleanQuery} mode="insert" movie={movie} />
+        {/each}
       </div>
     </div>
-  {/if}
+  </div>
 </div>

@@ -2,14 +2,16 @@
     import type { NewMovie } from '$lib/db/movies';
 	import { deleteMovie, insertMovie, updateMovie } from '$lib/remote/movie.remote';
 	import ColorSquare from './ColorSquare.svelte';
-    import { invalidateAll } from '$app/navigation';
+    import { invalidate } from '$app/navigation';
 	
 	interface Props {
+        cleanQuery?: () => void;
         mode: "insert" | "update";
         movie: NewMovie;
 	}
 
 	let {
+        cleanQuery=()=>{},
 		movie,
         mode,  
 	}: Props = $props();
@@ -32,7 +34,7 @@
             success = true;
             error = null;
         }catch(err){
-            console.error("Error guardando libro", err)
+            console.error("Error guardando película", err)
             error = JSON.stringify(err);
             success = false;
         }
@@ -45,16 +47,17 @@
             movie.location = location;
             editing = false;
         }catch(err){
-            console.error("Error guardando libro", err)
+            console.error("Error actualizando película", err)
         }
     }
 
     async function onDeleteMovie(){
+        console.log("Deleting movie", movie);
         try{
             await deleteMovie(movie.id!);
-            invalidateAll();
+            await invalidate('app:movies');
         }catch(err){
-            console.error("Error guardando libro", err)
+            console.error("Error eliminando película", err)
         }
     }
     
@@ -104,23 +107,6 @@
 {/if}
 {/snippet}
 
-{#if success}
-<div class="alert alert-success shadow-lg">
-  <div>
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-    <span>Movie guardado correctamente</span>
-  </div>
-</div>
-{/if}
-{#if error}
-<div class="alert alert-error shadow-lg">
-  <div>
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-    <span>{error}</span>
-  </div>
-</div>
-{/if}
-
 <div class="card bg-base-100 w-96 shadow-sm pb-4 relative">
     {#if movie.poster}
     <figure>
@@ -165,3 +151,19 @@
     </button>
     {/if}
 </div>
+{#if success}
+<div class="alert alert-success shadow-lg">
+  <div>
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+    <span>Movie guardado correctamente. <button class="link" onclick={cleanQuery}>Otra busqueda?</button></span>
+  </div>
+</div>
+{/if}
+{#if error}
+<div class="alert alert-error shadow-lg">
+  <div>
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+    <span>{error}</span>
+  </div>
+</div>
+{/if}
