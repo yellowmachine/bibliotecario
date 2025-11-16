@@ -22,12 +22,6 @@
     let success = $state(false);
     let error: string | null = $state(null);
 
-    const slug = (title: string) => title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
-
-    const getMovieUrl = (movie: NewMovie) => {
-      return `https://www.themoviedb.org/movie/${movie.id}-${slug(movie.title)}`;
-    };
-
     const onInsertMovie = async () => {
         try{
             await insertMovie({...movie, location});
@@ -129,7 +123,7 @@
     {/if}
     {@render modeSnippet()}
     <a 
-        href={getMovieUrl(movie)} 
+        href={movie.tmdbUrl} 
         target="_blank" 
         rel="noopener noreferrer"
         class="external-link"
