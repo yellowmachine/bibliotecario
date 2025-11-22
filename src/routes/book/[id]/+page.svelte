@@ -3,8 +3,8 @@
 	import { bookUpdateSchema } from "$lib/db/books";
 	import { updateBook } from "$lib/remote/book.remote";
 
-    const { book } = $props();
+    const { data } = $props();
 
 </script>
 
-<BookForm mode="update" schema={bookUpdateSchema} {book} save={updateBook} />
+<BookForm mode="update" schema={bookUpdateSchema} book={data.book} save={updateBook} />

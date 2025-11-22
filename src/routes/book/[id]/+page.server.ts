@@ -5,7 +5,9 @@ import { eq } from 'drizzle-orm';
 
 export const load: PageServerLoad = async ({params}) => {
     const id = parseInt(params.id);
+    const book = await db.select().from(books).where(eq(books.id, id)).limit(1);
+
 	return {
-		book: await db.select().from(books).where(eq(books.id, id))
+		book: book[0]
 	};
 };
