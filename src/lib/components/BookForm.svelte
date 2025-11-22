@@ -9,7 +9,7 @@
 				mode: "insert";
 				book: NewBook;
                 schema: ZodType<NewBook>;
-                save: (book: NewBook) => Promise<void>;
+                save: (book: NewBook) => Promise<number>;
 		  }
 		| {
 				mode: "update";
@@ -19,6 +19,8 @@
 		  };
 
 	let props: Props = $props();
+
+	let id = $state(props.book.id);
 
 	// Crea localBook con el tipo correcto basado en props.mode (TS infiere bien aquí)
 	let localBook = $state({ ...props.book } as typeof props.book);
@@ -38,7 +40,7 @@
 			if (props.mode === "insert") {
 				// localBook se narrowea a NewBook gracias al if (TS lo sabe por props.mode)
 				await props.schema.parseAsync(localBook);
-				await props.save(localBook);
+				id = await props.save(localBook);
 				success = 'Libro creado';
 			} else {
 				// localBook se narrowea a Book (id: number obligatorio)
@@ -61,7 +63,7 @@
 		{success}
         <div>
 		{#if props.mode === 'insert'}
-			<!-- <a href="/book/{props.book.id}">Ver libro</a> -->
+		    <a href={`/book/${id}`}>Ver libro</a>
 			<button class="btn btn-primary" onclick={clear}>Agregar otro libro</button>
 		{/if}
         </div>
