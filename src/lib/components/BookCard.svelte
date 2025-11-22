@@ -3,7 +3,7 @@
     import { updateBook } from '$lib/remote/book.remote';
 	
 	interface Props {
-        mode: "insert" | "update";
+        mode: "insert" | "update"  | "preview";
 		book: NewBook;
 	}
 

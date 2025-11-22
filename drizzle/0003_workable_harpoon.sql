@@ -1,0 +1,1 @@
+ALTER TABLE "books" DROP CONSTRAINT "books_isbn_unique";
