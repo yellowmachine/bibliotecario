@@ -5,6 +5,7 @@
     <div class="flex-none">
       <ul class="menu menu-horizontal px-1">
         <li><a href="/">Scan ISBN</a></li>
+        <li><a href="/book">Agregar libro</a></li>
         <li><a href="/movie">Buscar películas</a></li>
         <li class="dropdown dropdown-bottom dropdown-end">
           <details>

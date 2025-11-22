@@ -4,7 +4,7 @@ import { createSelectSchema, createInsertSchema, createUpdateSchema } from 'driz
 
 export const books = pgTable('books', {
     id: serial('id').primaryKey(),
-	isbn: text('isbn').notNull().unique(), 
+	isbn: text('isbn').unique(), 
 	openLibraryKey: text('open_library_key'), 
 	title: text('title').notNull(),
 	subtitle: text('subtitle'),

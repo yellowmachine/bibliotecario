@@ -6,6 +6,7 @@ import ky from 'ky';
 import { db } from '$lib/server/db';
 import { eq } from 'drizzle-orm';
 import { error } from '@sveltejs/kit';
+import { movies } from '$lib/db/movies';
 
 
 export interface LibraryStats {
@@ -19,7 +20,12 @@ export interface LibraryStats {
 
 export const queryLibrary = query(
     async () => {
-        return await db.select().from(books);
+        const myBooks = await db.select().from(books);
+        const myMovies = await db.select().from(movies);
+        return { 
+          books: myBooks, 
+          movies: myMovies 
+        };
     }
 );
 
